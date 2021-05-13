@@ -29,7 +29,7 @@ let productData = '';
 let filename = '';
 let authenticate;
 let url = '';
-let salesgroup = 'abc';
+let salesgroup = '';
 let colorCode;
 let shade;
 const App = () => {
@@ -46,9 +46,34 @@ const App = () => {
     cameraType: 'back',
   };
 
+  const PickGallery = () => {
+    launchImageLibrary(options, response => {
+      url = response.uri;
+    });
+  };
+
   const openPicker = () => {
     launchCamera(options, response => {
       url = response.uri;
+      console.log('PickerData', response);
+
+      // if (item.name === 'MASTER_000') {
+      //   filename =
+      //     prod.sales_group +
+      //     '_' +
+      //     materialId +
+      //     '_' +
+      //     colorCode +
+      //     '_' +
+      //     shade +
+      //     '.jpg';
+      // } else {
+      //   filename =
+      //     materialId + '_' + colorCode + '_' + shade + '.jpg';
+      // }
+      // filename = response.fileName;
+      // console.log('filename', filename);
+
       //console.log('filename', filename);
     });
   };
@@ -65,14 +90,14 @@ const App = () => {
     fd.append('expire', authenticate.expire);
     fd.append('token', authenticate.token);
     console.log('fd data', fd);
-    let res = await fetch('https://upload.imagekit.io/api/v1/files/upload/', {
+    let res = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
       method: 'POST',
       headers: {
-        // Accept: 'application/json',
         'Content-Type': 'multipart/form-data; ',
       },
       body: fd,
     });
+    console.log('data', fd);
     let responseJson = await res.json();
     console.log(responseJson);
     if (responseJson.status == 1) {
@@ -87,7 +112,6 @@ const App = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
     fetchData();
   }, [textChangeId]);
 
@@ -178,9 +202,9 @@ const App = () => {
               // if(productData)
               productData.forEach(prod => {
                 if (item.id === prod.product_id) {
-                  salesgroup = item.salesgroup;
+                  salesgroup = prod.sales_group;
+                  ColorData = [];
                   prod.option[0].product_option_value.forEach(i => {
-                    ColorData = [];
                     ColorData.push({
                       id: prod.product_id,
                       name: i.name,
@@ -282,9 +306,26 @@ const App = () => {
                     console.log('materialId', materialId);
                     console.log('Color code', colorCode);
                     console.log('shade', shade);
+                    if (item.name === 'MASTER_000') {
+                      filename =
+                        prod.sales_group +
+                        '-' +
+                        materialId +
+                        '-' +
+                        colorCode +
+                        '-' +
+                        shade +
+                        '.jpg';
+                    } else {
+                      filename =
+                        materialId + '-' + colorCode + '-' + shade + '.jpg';
+                    }
+                    console.log('FILENAME JUST AFTER ASSIGNING', filename);
                   });
-                  filename =
-                    materialId + '_' + colorCode + '_' + shade + '.jpg';
+                  console.log(
+                    'FILENAME AFTER ASSIGNING out of scope',
+                    filename,
+                  );
                 }
               });
             }}
@@ -322,7 +363,8 @@ const App = () => {
           />
         </View>
         <View>
-          <Button title="Pick an image" onPress={openPicker} />
+          <Button title="Click image" onPress={openPicker} />
+          <Button title="Pick an image" onPress={PickGallery} />
         </View>
         <View style={{marginVertical: 20}}>
           <Button title="Save" onPress={saved} />
