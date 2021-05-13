@@ -10,15 +10,14 @@ import React, {Fragment, useCallback, useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
-  TouchableOpacity,
   FlatList,
   View,
   Dimensions,
   Alert,
   ActivityIndicator,
   Button,
+  TouchableOpacity,
 } from 'react-native';
-import http from './http/index';
 import SearchableDropdown from 'react-native-searchable-dropdown';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
@@ -39,7 +38,7 @@ const App = () => {
   const [materialId, setMaterialId] = useState(' ');
   const [selectedColor, setSelectedColor] = useState(' ');
   const [selectedColorName, setSelectedColorName] = useState(' ');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const options = {
     mediaType: 'photo',
@@ -48,37 +47,34 @@ const App = () => {
 
   const PickGallery = () => {
     launchImageLibrary(options, response => {
-      url = response.uri;
+      let data = {
+        size: response.fileSize,
+        name: response.fileName,
+        type: response.type,
+        fileCopyUri: response.uri,
+        uri: response.uri,
+      };
+      url = data;
     });
   };
 
   const openPicker = () => {
     launchCamera(options, response => {
-      url = response.uri;
+      //url = response.uri;
+      let data = {
+        size: response.fileSize,
+        name: response.fileName,
+        type: response.type,
+        fileCopyUri: response.uri,
+        uri: response.uri,
+      };
+      url = data;
       console.log('PickerData', response);
-
-      // if (item.name === 'MASTER_000') {
-      //   filename =
-      //     prod.sales_group +
-      //     '_' +
-      //     materialId +
-      //     '_' +
-      //     colorCode +
-      //     '_' +
-      //     shade +
-      //     '.jpg';
-      // } else {
-      //   filename =
-      //     materialId + '_' + colorCode + '_' + shade + '.jpg';
-      // }
-      // filename = response.fileName;
-      // console.log('filename', filename);
-
-      //console.log('filename', filename);
     });
   };
 
   const saved = async () => {
+    setLoading(true);
     let fd = new FormData();
     //fd.append('file', $("#form-upload input[name='file']")[0].files[0]);
     fd.append('file', url);
@@ -93,19 +89,16 @@ const App = () => {
     let res = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
       method: 'POST',
       headers: {
-        'Content-Type': 'multipart/form-data; ',
+        'Content-Type': 'multipart/form-data',
       },
       body: fd,
     });
-    console.log('data', fd);
     let responseJson = await res.json();
-    console.log(responseJson);
-    if (responseJson.status == 1) {
+    console.log('DATAAA', responseJson);
+
+    if (responseJson) {
+      setLoading(false);
       Alert.alert('Upload Successful', null, [
-        {text: 'okay', style: 'destructive'},
-      ]);
-    } else {
-      Alert.alert('Please select a file', null, [
         {text: 'okay', style: 'destructive'},
       ]);
     }
@@ -145,7 +138,6 @@ const App = () => {
         name: item.product_id.concat(',', item.name),
       });
       setSelectedMaterial(material);
-      setLoading(false);
 
       //setSelectedMaterial([...selectedMaterial, material]);
       // setSelectedMaterial([...selectedMaterial, {
@@ -161,10 +153,12 @@ const App = () => {
     <View style={styles.container}>
       <Text
         style={{
+          marginTop: 100,
           fontSize: 25,
           justifyContent: 'center',
           alignItems: 'center',
           marginVertical: 30,
+          fontWeight: 'bold',
         }}>
         Upload Image
       </Text>
@@ -191,7 +185,7 @@ const App = () => {
               alignItems: 'center',
               paddingVertical: 20,
             }}>
-            <Text style={{fontSize: 18}}>Material</Text>
+            <Text style={{fontSize: 18, color: '#A9A9A9'}}>Material</Text>
           </View>
           <SearchableDropdown
             // defaultIndex={2}
@@ -288,7 +282,7 @@ const App = () => {
               alignItems: 'center',
               paddingVertical: 20,
             }}>
-            <Text style={{fontSize: 18}}>Color</Text>
+            <Text style={{fontSize: 18, color: '#A9A9A9'}}>Color</Text>
           </View>
           <SearchableDropdown
             items={
@@ -320,12 +314,7 @@ const App = () => {
                       filename =
                         materialId + '-' + colorCode + '-' + shade + '.jpg';
                     }
-                    console.log('FILENAME JUST AFTER ASSIGNING', filename);
                   });
-                  console.log(
-                    'FILENAME AFTER ASSIGNING out of scope',
-                    filename,
-                  );
                 }
               });
             }}
@@ -362,12 +351,65 @@ const App = () => {
             }}
           />
         </View>
-        <View>
-          <Button title="Click image" onPress={openPicker} />
-          <Button title="Pick an image" onPress={PickGallery} />
+        <View
+          style={{
+            width: window.width,
+            height: window.height / 8,
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+          }}>
+          <TouchableOpacity
+            style={{
+              borderWidth: 2,
+              width: window.width / 3,
+              marginHorizontal: 5,
+              height: window.height / 15,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#d69c3a',
+              elevation: 10,
+              borderRadius: 10,
+            }}
+            onPress={openPicker}>
+            <Text style={{color: 'white'}}>Click Image</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              borderWidth: 2,
+              width: window.width / 3,
+              marginHorizontal: 5,
+              height: window.height / 15,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 10,
+              backgroundColor: '#d69c3a',
+              elevation: 10,
+            }}
+            onPress={PickGallery}>
+            <Text style={{color: 'white'}}>Pick an Image</Text>
+          </TouchableOpacity>
         </View>
         <View style={{marginVertical: 20}}>
-          <Button title="Save" onPress={saved} />
+          <TouchableOpacity
+            onPress={saved}
+            style={{
+              borderWidth: 2,
+              width: window.width / 3,
+              marginHorizontal: 5,
+              height: window.height / 15,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 10,
+              backgroundColor: '#d69c3a',
+              elevation: 10,
+            }}>
+            {loading ? (
+              <ActivityIndicator size="large" color="white" />
+            ) : (
+              <Text style={{color: 'white'}}>SAVE</Text>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
     </View>
