@@ -118,51 +118,60 @@ const DynamicColorComponent = props => {
     fd.append('expire', exp);
     fd.append('token', token);
     console.log('fd data', fd);
-    try {
-      let res = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: fd,
-      });
 
-      let responseJson = await res.json();
-      console.log('DATAAA', responseJson);
+    let res = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: fd,
+    });
 
-      if (responseJson) {
-        getCredData();
-        if (colorname === 'MASTER_000') {
-          let res = await fetch(`product/updateProductFlag&product_id=${id}`);
-          let resD = await res.json();
-          console.log('YES', resD);
-        } else {
-          let res = await fetch(
-            `product/updateProductFlag&product_option_value_id=${option_id}`,
-          );
-          let resD = await res.json();
-          console.log('NO', resD);
-        }
-        setLoading(false);
-        setImageLoading(false);
-        // setToggleCheckBox(false);
-        // setURL('');
-        // // setURI('');
-        // setFileName('');
-        // setSalesGroupp('');
-        // // setSig('');
-        // // setExp('');
-        // // setToken('');
-        // colorCode = '';
-        // shade = '';
-        // option_description = '';
-        // filename = '';
-        // url = '';
-        ToastAndroid.show('Uploaded Successfully.', ToastAndroid.SHORT);
+    if (!res.ok) {
+      const errorResData = await response.json();
+      console.log('error in uploading', errorResData);
+    }
+
+    let responseJson = await res.json();
+    console.log('DATAAA', responseJson);
+
+    if (responseJson) {
+      getCredData();
+      if (colorname === 'MASTER_000') {
+        let res = await fetch(`product/updateProductFlag&product_id=${id}`)
+          .then(res => {
+            console.log('YES', res);
+          })
+          .catch(error => {
+            console.log('NO', error);
+          });
+      } else {
+        let res = await fetch(
+          `product/updateProductFlag&product_option_value_id=${option_id}`,
+        )
+          .then(res => {
+            console.log('YES', res);
+          })
+          .catch(error => {
+            console.log('NO', error);
+          });
       }
-    } catch (error) {
-      // console.log('ERROR IN UPLOADING', error);
-      Toast.show('Error Occured at' + FileName, ToastAndroid.SHORT);
+      setLoading(false);
+      setImageLoading(false);
+      // setToggleCheckBox(false);
+      // setURL('');
+      // // setURI('');
+      // setFileName('');
+      // setSalesGroupp('');
+      // // setSig('');
+      // // setExp('');
+      // // setToken('');
+      // colorCode = '';
+      // shade = '';
+      // option_description = '';
+      // filename = '';
+      // url = '';
+      ToastAndroid.show('Uploaded Successfully.', ToastAndroid.SHORT);
     }
   };
 

@@ -94,6 +94,7 @@ export default class LoginWithPassword extends Component {
     return (
       <View style={{flex: 1, backgroundColor: 'white'}}>
         <StackHeader
+          // thankyou={true}
           mycart={false}
           bgcolor="white"
           justifyContent={'flex-start'}
@@ -113,6 +114,7 @@ export default class LoginWithPassword extends Component {
 
           <View style={{marginVertical: 20}}>
             <EditTextField
+              // tintColor="black"
               label="Email or Mobile Number"
               name="username"
               errors={errors}

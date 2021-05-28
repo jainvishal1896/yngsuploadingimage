@@ -33,29 +33,13 @@ export default ImageCard = props => {
 
   let {funcfromChild, custDetails, prodId, image, funcFromChildSendId} = props;
 
-  const sendData = value => {
-    funcfromChild(value);
-  };
   const sendProdId = value => {
     funcFromChildSendId(value);
-  };
-
-  const postingRecommendation = () => {
-    http
-      .post('product/pushToCustomer', CollectionData)
-      .then(res => {
-        console.log('RESOLVE', res);
-        ToastAndroid.show('Data sent.', ToastAndroid.SHORT);
-      })
-      .catch(error => {
-        console.log('Error of posting', error);
-      });
   };
 
   const gettingCutomerData = () => {
     let details = [];
     custDetails.forEach(item => {
-      //console.log('ITEMMM Cust Details', item.customer_id);
       details.push({
         id: item.customer_id,
         name: item.name,
@@ -73,134 +57,49 @@ export default ImageCard = props => {
 
   useEffect(() => {
     noOfCards = 4;
-    // console.log('CUST DETAILS', custDetails);
-    // console.log('Selected Customer', SelectedCustomer);
   }, []);
-  // console.log('Productname', props.prodName);
 
+  const toggleModal = visible => {
+    setModalVisible(visible);
+  };
   const HandleModal = () => {
-    // console.log("Customer ",CustomerDetails );
     return (
       <View style={styles.Modalcontainer}>
         <Modal
           animationType={'slide'}
           transparent={true}
-          visible={modalVisible}>
+          visible={modalVisible}
+          // onRequestClose={() => { console.log("Modal has been closed.") }}
+        >
           <View style={styles.modal}>
-            <View style={styles.Modalcard}>
-              <View>
-                <View
-                  style={{
-                    width: window.width,
-                    backgroundColor: 'white',
-                    height: window.height / 6,
-                  }}>
-                  <View
-                    style={{
-                      width: '100%',
-                      height: '20%',
-                      backgroundColor: primaryColor,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Text style={{color: 'white'}}>Push to Customer </Text>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-around',
-                      alignItems: 'center',
-                    }}>
-                    <Text>Select Customer</Text>
-                    <SearchableDropdown
-                      items={CustomerDetails}
-                      onItemSelect={item => {
-                        console.log('ITEM', item);
-                        setSelectedCustomer(item.id);
-                        // makingData();
-                        let Collection = [];
-                        Collection.push({
-                          prodid: prodId,
-                          customerId: SelectedCustomer,
-                        });
-                        setCollectionData(Collection);
-                        console.log('COLLECTION DATA', CollectionData);
-                        postingRecommendation();
-                        console.log(
-                          'Consoling Selected Customer',
-                          SelectedCustomer,
-                        );
-                      }}
-                      placeholderTextColor="black"
-                      containerStyle={{
-                        padding: 5,
-                        width: '55%',
-                        marginRight: 10,
-                      }}
-                      itemStyle={{
-                        padding: 10,
-                        marginTop: 2,
-                        backgroundColor: '#ddd',
-                        borderColor: '#bbb',
-                        borderRadius: 5,
-                        color: 'black',
-                      }}
-                      // itemTextStyle={{color: '#222'}}
-                      itemsContainerStyle={{
-                        maxHeight: 140,
-                      }}
-                      textInputProps={{
-                        placeholder: SelectedCustomer,
-                        underlineColorAndroid: 'transparent',
-                        style: {
-                          padding: 12,
-                          color: 'black',
-                          borderWidth: 1,
-                          borderColor: '#ccc',
-                          borderRadius: 5,
-                        },
-                        onTextChange: text => {
-                          sendData(text);
-                          //console.log('Target value', text);
-                        },
-                      }}
-                      listProps={{
-                        nestedScrollEnabled: true,
-                      }}
-                    />
-                  </View>
-                </View>
-              </View>
-              <TouchableOpacity
-                style={styles.touchableButton}
-                onPress={() => {
-                  toggleModal(!modalVisible);
-                }}>
-                <Text style={styles.text}>Close</Text>
-              </TouchableOpacity>
-            </View>
+            <Image
+              style={{width: '100%', height: 500, resizeMode: 'contain'}}
+              source={{uri: `${Images_URL}/tr:w-170,h-200,q_200/${image}`}}
+            />
+
+            <TouchableOpacity
+              style={styles.touchableButton}
+              onPress={() => {
+                toggleModal(!modalVisible);
+              }}>
+              <Text style={styles.text}>Close</Text>
+            </TouchableOpacity>
           </View>
         </Modal>
       </View>
     );
   };
 
-  const toggleModal = visible => {
-    setModalVisible(visible);
-  };
-
-  // const checker = value => {
-  //   ToastAndroid.show(value, ToastAndroid.SHORT);
-  // };
   console.log(image);
   return (
     <View style={styles.card}>
       <CheckBox
         style={{
+          zIndex: 1,
           position: 'absolute',
           top: 5,
           left: 3,
-          backgroundColor: 'grey',
+          backgroundColor: 'white',
         }}
         disabled={false}
         value={toggleCheckBox}
@@ -210,22 +109,26 @@ export default ImageCard = props => {
           setToggleCheckBox(newValue);
         }}
       />
-      <View style={styles.top}>
+      <TouchableOpacity
+        onPress={() => {
+          toggleModal(!modalVisible);
+        }}
+        style={styles.top}>
+        {modalVisible === true ? <View>{HandleModal()}</View> : <View></View>}
+
         <Image
           style={{
             width: '100%',
-            height: '60%',
+            height: '100%',
             resizeMode: 'contain',
           }}
           source={{
-            uri: `${Images_URL}/tr:w-150,h-50,q_50/${image}`,
+            uri: `${Images_URL}/tr:w-170,h-200,q_200/${image}`,
           }}
         />
-      </View>
-      {/* <View style={}> */}
-      <View style={{height: '40%', width: widths}}>
+      </TouchableOpacity>
+      <View style={{height: '20%', width: widths}}>
         <Text
-          // numberOfLines={2}
           style={{
             height: '100%',
             width: '100%',
@@ -237,63 +140,6 @@ export default ImageCard = props => {
           {props.prodName}
         </Text>
       </View>
-      {/* <View>
-        {CustomerDetails.length > 0
-          ? CustomerDetails.map((item, i) => {
-              console.log('CUSTOMER DETAILS ', item);
-              return (
-                <TouchableOpacity key={i} onPress={() => checker(item.id)}>
-                  <Text>{item.id}</Text>
-                </TouchableOpacity>
-              );
-            })
-          : null}
-      </View> */}
-      {/* <SearchableDropdown
-        items={CustomerDetails}
-        onItemSelect={item => {
-          console.log('ITEM', item);
-          setSelectedCustomer(item.name);
-          console.log('Consoling Selected Customer', SelectedCustomer);
-        }}
-        placeholderTextColor="black"
-        containerStyle={{
-          padding: 5,
-          width: '55%',
-          marginRight: 10,
-        }}
-        itemStyle={{
-          padding: 10,
-          marginTop: 2,
-          backgroundColor: '#ddd',
-          borderColor: '#bbb',
-          borderRadius: 5,
-          color: 'black',
-        }}
-        // itemTextStyle={{color: '#222'}}
-        itemsContainerStyle={{
-          maxHeight: 140,
-        }}
-        textInputProps={{
-          placeholder: SelectedCustomer,
-          underlineColorAndroid: 'transparent',
-          style: {
-            padding: 12,
-            color: 'black',
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 5,
-          },
-          onTextChange: text => {
-            sendData(text);
-            //console.log('Target value', text);
-          },
-        }}
-        listProps={{
-          nestedScrollEnabled: true,
-        }}
-      /> */}
-      {/* </View> */}
     </View>
   );
 };
@@ -307,7 +153,7 @@ const styles = StyleSheet.create({
     // borderRadius: 10,
     overflow: 'hidden',
   },
-  top: {width: '100%'},
+  top: {width: '100%', height: '100%'},
   Modalcontainer: {
     flex: 1,
     justifyContent: 'center',

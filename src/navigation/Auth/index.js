@@ -25,7 +25,7 @@ const CreateAuthNavigation = createStackNavigator(
   },
   {
     headerMode: 'none',
-    initialRouteName: 'Login',
+    initialRouteName: 'LoginWithPassword',
   },
 );
 export default CreateAuthNavigation;
