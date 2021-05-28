@@ -11,14 +11,14 @@ let client = axios.create({
   headers,
   withCredentials: false,
 });
-// client.interceptors.request.use(async (config) => {
-// 	let token = await _getUser()
-// 		.then((res) => res.api_token)
-// 		.catch((err) => console.log("errr"));
-// 	config.headers["Authorization"] = `${token}`;
-// 	console.log("token---", token);
-// 	return config;
-// });
+client.interceptors.request.use(async config => {
+  let token = await _getUser()
+    .then(res => res.api_token)
+    .catch(err => console.log('errr'));
+  config.headers['Authorization'] = `${token}`;
+  console.log('token---', token);
+  return config;
+});
 
 client.interceptors.response.use(
   function (response) {
